@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النموذج 7 الشامل - أ/ عبدالعزيز الفيفي</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --primary: #4a148c; --secondary: #7b1fa2; --bg: #f5f5f5; --accent: #ff9800; --correct: #2e7d32; --wrong: #c62828; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .quiz-container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 650px; text-align: center; position: relative; }
+        #timer-bar { position: absolute; top: 0; right: 0; height: 6px; background: var(--accent); width: 100%; transition: width 1s linear; border-radius: 15px 15px 0 0; }
+        .option-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; background: none; cursor: pointer; transition: 0.3s; font-size: 1.1rem; font-weight: 500; }
+        .correct-flash { background-color: #e8f5e9 !important; border-color: var(--correct) !important; color: var(--correct); border-width: 3px !important; }
+        .wrong-flash { background-color: #ffeeb2 !important; border-color: var(--wrong) !important; color: var(--wrong); }
+        .hidden { display: none; }
+        .reading-text { background: #fff9c4; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: right; font-size: 1rem; border-right: 5px solid var(--accent); line-height: 1.6; }
+        input[type="text"] { width: 85%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 2px solid #ddd; font-size: 1rem; }
+        .btn-start { background: var(--primary); color: white; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; }
+        #feedback { margin-top: 15px; font-weight: bold; font-size: 1.1rem; min-height: 1.5em; }
+        #timer-text { font-weight: bold; color: var(--accent); margin-bottom: 10px; }
+        .copyright { font-size: 0.85rem; color: #666; margin-top: 25px; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="timer-bar"></div>
+    
+    <div id="login-section">
+        <h2 style="color: var(--primary);">( تحدي اليوم ) </h2>
+        <div class="copyright">أ/ عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓</div>
+        <p></p>
+        <input type="text" id="student-name" placeholder="أدخل اسمك الثلاثي لتبدأ...">
+        <br>
+        <button class="btn-start" onclick="startQuiz()">بدأ الاختبار</button>
+    </div>
+
+    <div id="quiz-section" class="hidden">
+        <div id="timer-text">الوقت المتبقي: 40</div>
+        <h3 id="question-title" style="color: var(--secondary); margin-bottom: 5px;"></h3>
+        <div id="reading-container" class="reading-text hidden"></div>
+        <h2 id="question-text" style="margin-top: 5px;"></h2>
+        <div id="options-container"></div>
+        <div id="feedback"></div>
+        <div class="copyright">أ/ عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓</div>
+    </div>
+
+    <div id="result-section" class="hidden">
+        <h2>تم اكتمال الاختبار بنجاح</h2>
+        <h1 id="final-score" style="color: var(--primary);"></h1>
+        <button class="btn-start" onclick="location.reload()">إعادة الاختبار</button>
+        <p style="margin-top: 20px;">✨ أ / عبد العزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓</p>
+    </div>
+</div>
+
+<script>
+    let timeLeft = 40;
+    let timerInterval;
+    let currentQ = 0;
+    let score = 0;
+    const TRANSITION_DELAY = 5500;
+
+    const rawData = [
+        // 1. التناظر اللفظي
+        { type: "التناظر اللفظي", q: "جندي : سلاح", options: ["طبيب : سماعة", "مهندس : بناء", "ميكانيكي : زيت", "طباخ : مطعم"], correctText: "طبيب : سماعة" },
+        { type: "التناظر اللفظي", q: "أسود : ليل", options: ["أبيض : نهار", "أحمر : دم", "أخضر : عشب", "أصفر : شمس"], correctText: "أبيض : نهار" },
+        { type: "التناظر اللفظي", q: "بحر : سمك", options: ["سماء : طيور", "غابة : أشجار", "كتاب : معلومات", "مزرعة : فواكه"], correctText: "غابة : أشجار" },
+        
+        // 2. إكمال الجمل
+        { type: "إكمال الجمل", q: "إذا لم تستطع أن تكن ..... في السماء، فكن شجيرة في الـ .....", options: ["قمراً - ليل", "نجماً - وادي", "شمساً - كون", "طائراً - فضاء"], correctText: "نجماً - وادي" },
+        { type: "إكمال الجمل", q: "يعد الوعي ..... من أهم ركائز استقرار الميزانية الشخصية", options: ["الثقافي", "الصحي", "الاستهلاكي", "الرياضي"], correctText: "الاستهلاكي" },
+        { type: "إكمال الجمل", q: "المؤمن كـ ..... أينما وقع نفع", options: ["النحلة", "الغيث", "الشجرة", "الضوء"], correctText: "الغيث" },
+
+        // 3. المفردة الشاذة والارتباط والاختلاف
+        { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["السنة", "الشهر", "اليوم", "الساعة"], correctText: "الساعة" },
+        { type: "الارتباط والاختلاف", q: "ما الكلمة المختلفة؟", options: ["الطائرة", "المنطاد", "الصاروخ", "السفينة"], correctText: "السفينة" },
+        { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["الرياض", "جدة", "مكة", "تبوك"], correctText: "الرياض" },
+
+        // 4. الخطأ في السياق
+        { type: "الخطأ في السياق", q: "صنعة في اليد أمان من الغنى", options: ["صنعة", "اليد", "أمان", "الغنى"], correctText: "الغنى" },
+        { type: "الخطأ في السياق", q: "العظماء يولدون في أحضان الوحدة، ويموتون في مهد الزحام", options: ["العظماء", "الوحدة", "يموتون", "الزحام"], correctText: "الزحام" },
+        { type: "الخطأ في السياق", q: "من غضب من لا شيء، رضي بكل شيء", options: ["غضب", "شيء", "رضي", "بكل"], correctText: "رضي" },
+
+        // 5. استيعاب المقروء
+        { 
+            type: "استيعاب المقروء", 
+            text: "تعتبر أشجار القرم (المانجروف) رئة للبحار، حيث تساهم في امتصاص كميات كبيرة من الكربون وتوفر مأوى للكثير من الكائنات البحرية.",
+            q: "يُفهم من النص أن أشجار القرم تلعب دوراً في:", 
+            options: ["زيادة ملوحة الماء", "تحسين جودة الهواء", "منع الصيد الجائر", "تبريد مياه البحار"], 
+            correctText: "تحسين جودة الهواء" 
+        },
+        { 
+            type: "استيعاب المقروء", 
+            text: "يتكون الغلاف الجوي من عدة طبقات، أعلاها طبقة الإكسوسفير التي تتلاشى تدريجياً في الفضاء الخارجي، بينما نعيش نحن في طبقة التروپوسفير.",
+            q: "الطبقة الأقرب لسطح الأرض هي:", 
+            options: ["الإكسوسفير", "الستراتوسفير", "التروپوسفير", "الميزوسفير"], 
+            correctText: "التروپوسفير" 
+        },
+        { 
+            type: "استيعاب المقروء", 
+            text: "يعتمد اقتصاد المستقبل بشكل كبير على البيانات (النفط الجديد)، حيث تساهم معالجتها في اتخاذ قرارات دقيقة تزيد الكفاءة والإنتاجية.",
+            q: "شبه الكاتب البيانات بالنفط الجديد للدلالة على:", 
+            options: ["صعوبة الحصول عليها", "قيمتها العالية", "تسببها في التلوث", "انتهائها السريع"], 
+            correctText: "قيمتها العالية" 
+        }
+    ];
+
+    let quizData = [];
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function startQuiz() {
+        if (!document.getElementById('student-name').value) { alert("لطفاً، ادخل اسمك أولاً"); return; }
+        quizData = shuffle([...rawData]);
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('quiz-section').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = quizData[currentQ];
+        const shuffledOptions = shuffle([...q.options]);
+        document.getElementById('question-title').innerText = `س ${currentQ + 1} في ( ${q.type} )`;
+        const readingBox = document.getElementById('reading-container');
+        if (q.text) { readingBox.innerText = q.text; readingBox.classList.remove('hidden'); } 
+        else { readingBox.classList.add('hidden'); }
+        document.getElementById('question-text').innerText = q.q;
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        document.getElementById('feedback').innerText = '';
+        shuffledOptions.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.id = `opt-${index}`;
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index, opt === q.correctText, q.correctText);
+            container.appendChild(btn);
+        });
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 40;
+        updateTimerUI();
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerUI();
+            if (timeLeft <= 0) { clearInterval(timerInterval); showCorrectAndNext(); }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        document.getElementById('timer-text').innerText = `الوقت المتبقي: ${timeLeft}`;
+        document.getElementById('timer-bar').style.width = `${(timeLeft / 40) * 100}%`;
+    }
+
+    function checkAnswer(index, isCorrect, correctText) {
+        clearInterval(timerInterval);
+        disableOptions();
+        if (isCorrect) {
+            score++;
+            document.getElementById(`opt-${index}`).classList.add('correct-flash');
+            document.getElementById('feedback').innerHTML = "<span style='color:green'>إجابة صحيحة! أحسنت يا بطل 🌟</span>";
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        } else {
+            document.getElementById(`opt-${index}`).classList.add('wrong-flash');
+            highlightCorrect(correctText);
+            document.getElementById('feedback').innerHTML = "<span style='color:red'>محاولة جيدة، يواصل.. 💪 (الصواب بالأخضر)</span>";
+        }
+        setTimeout(nextQuestion, TRANSITION_DELAY);
+    }
+
+    function highlightCorrect(correctText) {
+        const btns = document.querySelectorAll('.option-btn');
+        btns.forEach(btn => { if (btn.innerText === correctText) btn.classList.add('correct-flash'); });
+    }
+
+    function showCorrectAndNext() {
+        const q = quizData[currentQ];
+        document.getElementById('feedback').innerHTML = "<span style='color:orange'>انتهى الوقت! الصواب موضح بالأخضر.. واصل 💪</span>";
+        highlightCorrect(q.correctText);
+        disableOptions();
+        setTimeout(nextQuestion, TRANSITION_DELAY);
+    }
+
+    function disableOptions() {
+        const btns = document.querySelectorAll('.option-btn');
+        btns.forEach(btn => btn.disabled = true);
+    }
+
+    function nextQuestion() {
+        currentQ++;
+        if (currentQ < quizData.length) { showQuestion(); } 
+        else { finishQuiz(); }
+    }
+
+    function finishQuiz() {
+        document.getElementById('quiz-section').classList.add('hidden');
+        document.getElementById('result-section').classList.remove('hidden');
+        document.getElementById('final-score').innerText = `درجتك النهائية: ${score} من ${quizData.length}`;
+    }
+</script>
+</body>
+</html>
