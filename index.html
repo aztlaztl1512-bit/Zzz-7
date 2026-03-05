@@ -15,21 +15,28 @@
         .wrong-flash { background-color: #ffeeb2 !important; border-color: var(--wrong) !important; color: var(--wrong); }
         .hidden { display: none; }
         .reading-text { background: #fff9c4; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: right; font-size: 1rem; border-right: 5px solid var(--accent); line-height: 1.6; }
-        input[type="text"] { width: 85%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 2px solid #ddd; font-size: 1rem; }
+        input[type="text"] { width: 85%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 2px solid #ddd; font-size: 1rem; text-align: center; }
         .btn-start { background: var(--primary); color: white; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; }
         #feedback { margin-top: 15px; font-weight: bold; font-size: 1.1rem; min-height: 1.5em; }
         #timer-text { font-weight: bold; color: var(--accent); margin-bottom: 10px; }
         .copyright { font-size: 0.85rem; color: #666; margin-top: 25px; border-top: 1px solid #eee; padding-top: 10px; }
+
+        /* التنسيقات المطلوبة لاسمك والمدرسة والتاريخ */
+        .normal-text { color: #000; font-weight: normal; font-size: 0.85rem; }
+        .date-red-small { color: #e53e3e; font-size: 0.85rem; font-weight: bold; margin: 10px 0; display: inline-block; }
     </style>
 </head>
-<body>
+<body onload="updateDateTime()">
 
 <div class="quiz-container">
     <div id="timer-bar"></div>
     
     <div id="login-section">
-        <h2 style="color: var(--primary);">( تحدي اليوم ) </h2>
-        <div class="copyright">أ/ عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓</div>
+        <h2 style="color: var(--primary);">( تحدي اليوم )</h2>
+        
+        <div id="date-display" class="date-red-small">جاري تحميل التاريخ...</div>
+        
+        <div class="copyright">أ/ <span class="normal-text">عبدالعزيز الفيفي</span> - <span class="normal-text">ثانوية الأمير عبدالمجيد 🎓</span></div>
         <p></p>
         <input type="text" id="student-name" placeholder="أدخل اسمك الثلاثي لتبدأ...">
         <br>
@@ -43,18 +50,33 @@
         <h2 id="question-text" style="margin-top: 5px;"></h2>
         <div id="options-container"></div>
         <div id="feedback"></div>
-        <div class="copyright">أ/ عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓</div>
+        <div class="copyright">تصميم أ/ <span class="normal-text">عبدالعزيز الفيفي</span> - <span class="normal-text">ثانوية الأمير عبدالمجيد 🎓</span></div>
     </div>
 
     <div id="result-section" class="hidden">
         <h2>تم اكتمال الاختبار بنجاح</h2>
         <h1 id="final-score" style="color: var(--primary);"></h1>
         <button class="btn-start" onclick="location.reload()">إعادة الاختبار</button>
-        <p style="margin-top: 20px;">✨ أ / عبد العزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓</p>
+        <p style="margin-top: 20px;">✨ أ / <span class="normal-text">عبد العزيز الفيفي</span> - <span class="normal-text">ثانوية الأمير عبدالمجيد 🎓</span></p>
     </div>
 </div>
 
 <script>
+    // وظيفة عرض التاريخ الهجري والميلادي معاً بدون تكرار
+    function updateDateTime() {
+        const today = new Date();
+        const hijriOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', calendar: 'islamic-umalqura', numberingSystem: 'arabic' };
+        const gregOptions = { day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'arabic' };
+        
+        const hijriDate = new Intl.DateTimeFormat('ar-SA', hijriOptions).format(today);
+        const gregDate = new Intl.DateTimeFormat('ar-SA', gregOptions).format(today);
+        
+        const dateDisplay = document.getElementById('date-display');
+        if (dateDisplay) {
+            dateDisplay.innerText = `${hijriDate} | ${gregDate} م`;
+        }
+    }
+
     let timeLeft = 40;
     let timerInterval;
     let currentQ = 0;
@@ -62,27 +84,18 @@
     const TRANSITION_DELAY = 5500;
 
     const rawData = [
-        // 1. التناظر اللفظي
         { type: "التناظر اللفظي", q: "جندي : سلاح", options: ["طبيب : سماعة", "مهندس : بناء", "ميكانيكي : زيت", "طباخ : مطعم"], correctText: "طبيب : سماعة" },
         { type: "التناظر اللفظي", q: "أسود : ليل", options: ["أبيض : نهار", "أحمر : دم", "أخضر : عشب", "أصفر : شمس"], correctText: "أبيض : نهار" },
         { type: "التناظر اللفظي", q: "بحر : سمك", options: ["سماء : طيور", "غابة : أشجار", "كتاب : معلومات", "مزرعة : فواكه"], correctText: "غابة : أشجار" },
-        
-        // 2. إكمال الجمل
         { type: "إكمال الجمل", q: "إذا لم تستطع أن تكن ..... في السماء، فكن شجيرة في الـ .....", options: ["قمراً - ليل", "نجماً - وادي", "شمساً - كون", "طائراً - فضاء"], correctText: "نجماً - وادي" },
         { type: "إكمال الجمل", q: "يعد الوعي ..... من أهم ركائز استقرار الميزانية الشخصية", options: ["الثقافي", "الصحي", "الاستهلاكي", "الرياضي"], correctText: "الاستهلاكي" },
         { type: "إكمال الجمل", q: "المؤمن كـ ..... أينما وقع نفع", options: ["النحلة", "الغيث", "الشجرة", "الضوء"], correctText: "الغيث" },
-
-        // 3. المفردة الشاذة والارتباط والاختلاف
         { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["السنة", "الشهر", "اليوم", "الساعة"], correctText: "الساعة" },
         { type: "الارتباط والاختلاف", q: "ما الكلمة المختلفة؟", options: ["الطائرة", "المنطاد", "الصاروخ", "السفينة"], correctText: "السفينة" },
         { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["الرياض", "جدة", "مكة", "تبوك"], correctText: "الرياض" },
-
-        // 4. الخطأ في السياق
         { type: "الخطأ في السياق", q: "صنعة في اليد أمان من الغنى", options: ["صنعة", "اليد", "أمان", "الغنى"], correctText: "الغنى" },
         { type: "الخطأ في السياق", q: "العظماء يولدون في أحضان الوحدة، ويموتون في مهد الزحام", options: ["العظماء", "الوحدة", "يموتون", "الزحام"], correctText: "الزحام" },
         { type: "الخطأ في السياق", q: "من غضب من لا شيء، رضي بكل شيء", options: ["غضب", "شيء", "رضي", "بكل"], correctText: "رضي" },
-
-        // 5. استيعاب المقروء
         { 
             type: "استيعاب المقروء", 
             text: "تعتبر أشجار القرم (المانجروف) رئة للبحار، حيث تساهم في امتصاص كميات كبيرة من الكربون وتوفر مأوى للكثير من الكائنات البحرية.",
@@ -117,7 +130,7 @@
     }
 
     function startQuiz() {
-        if (!document.getElementById('student-name').value) { alert("لطفاً، ادخل اسمك أولاً"); return; }
+        if (!document.getElementById('student-name').value.trim()) { alert("لطفاً، ادخل اسمك الثلاثي أولاً"); return; }
         quizData = shuffle([...rawData]);
         document.getElementById('login-section').classList.add('hidden');
         document.getElementById('quiz-section').classList.remove('hidden');
@@ -165,15 +178,16 @@
     function checkAnswer(index, isCorrect, correctText) {
         clearInterval(timerInterval);
         disableOptions();
+        const feedback = document.getElementById('feedback');
         if (isCorrect) {
             score++;
             document.getElementById(`opt-${index}`).classList.add('correct-flash');
-            document.getElementById('feedback').innerHTML = "<span style='color:green'>إجابة صحيحة! أحسنت يا بطل 🌟</span>";
+            feedback.innerHTML = "<span style='color:green'>إجابة صحيحة! أحسنت يا بطل 🌟</span>";
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         } else {
             document.getElementById(`opt-${index}`).classList.add('wrong-flash');
             highlightCorrect(correctText);
-            document.getElementById('feedback').innerHTML = "<span style='color:red'>محاولة جيدة، يواصل.. 💪 (الصواب بالأخضر)</span>";
+            feedback.innerHTML = "<span style='color:red'>محاولة جيدة، يواصل.. 💪 (الصواب بالأخضر)</span>";
         }
         setTimeout(nextQuestion, TRANSITION_DELAY);
     }
