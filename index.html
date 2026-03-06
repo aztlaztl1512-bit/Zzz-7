@@ -50,13 +50,39 @@
         <h2 id="question-text" style="margin-top: 5px;"></h2>
         <div id="options-container"></div>
         <div id="feedback"></div>
-        <div class="copyright">تصميم أ/ <span class="normal-text">عبدالعزيز الفيفي</span> - <span class="normal-text">ثانوية الأمير عبدالمجيد 🎓</span></div>
+        <div class="copyright"> أ/ <span class="normal-text">عبدالعزيز الفيفي</span> - <span class="normal-text">ثانوية الأمير عبدالمجيد 🎓</span></div>
     </div>
 
     <div id="result-section" class="hidden">
         <h2>تم اكتمال الاختبار بنجاح</h2>
         <h1 id="final-score" style="color: var(--primary);"></h1>
-        <button class="btn-start" onclick="location.reload()">إعادة الاختبار</button>
+       <!-- إضافة خط Tajawal من Google Fonts لضمان جمال النص -->
+<link href="https://fonts.googleapis.com" rel="stylesheet">
+
+<button class="btn-start" onclick="location.reload()" style="
+    background: linear-gradient(45deg, #ff512f, #dd2476);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(221, 36, 118, 0.4);
+    transition: transform 0.3s ease;
+    direction: rtl;
+">
+    ليس هناك تحدٍ أكبر من تطوير ذاتك؛ أعد الكرة الآن 🚀 أو كُن النسخة الأفضل غداً 🔥✨
+</button>
+
+<style>
+    .btn-start:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(221, 36, 118, 0.6);
+    }
+</style>
+
         <p style="margin-top: 20px;">✨ أ / <span class="normal-text">عبد العزيز الفيفي</span> - <span class="normal-text">ثانوية الأمير عبدالمجيد 🎓</span></p>
     </div>
 </div>
@@ -223,4 +249,5 @@
     }
 </script>
 </body>
+
 </html>
