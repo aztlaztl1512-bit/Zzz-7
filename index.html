@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>النموذج 7 الشامل - أ/ عبدالعزيز الفيفي</title>
+    <title>تحدي اليوم - أ/ عبدالعزيز الفيفي</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root { --primary: #4a148c; --secondary: #7b1fa2; --bg: #f5f5f5; --accent: #ff9800; --correct: #2e7d32; --wrong: #c62828; }
@@ -21,7 +21,6 @@
         #timer-text { font-weight: bold; color: var(--accent); margin-bottom: 10px; }
         .copyright { font-size: 0.85rem; color: #666; margin-top: 25px; border-top: 1px solid #eee; padding-top: 10px; }
 
-        /* التنسيقات المطلوبة لاسمك والمدرسة والتاريخ */
         .normal-text { color: #000; font-weight: normal; font-size: 0.85rem; }
         .date-red-small { color: #e53e3e; font-size: 0.85rem; font-weight: bold; margin: 10px 0; display: inline-block; }
     </style>
@@ -56,39 +55,37 @@
     <div id="result-section" class="hidden">
         <h2>تم اكتمال الاختبار بنجاح</h2>
         <h1 id="final-score" style="color: var(--primary);"></h1>
-       <!-- إضافة خط Tajawal من Google Fonts لضمان جمال النص -->
-<link href="https://fonts.googleapis.com" rel="stylesheet">
+        <link href="https://fonts.googleapis.com" rel="stylesheet">
 
-<button class="btn-start" onclick="location.reload()" style="
-    background: linear-gradient(45deg, #ff512f, #dd2476);
-    color: white;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 50px;
-    font-family: 'Tajawal', sans-serif;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(221, 36, 118, 0.4);
-    transition: transform 0.3s ease;
-    direction: rtl;
-">
-    ليس هناك تحدٍ أكبر من تطوير ذاتك؛ أعد الكرة الآن 🚀 أو كُن النسخة الأفضل غداً 🔥✨
-</button>
+        <button class="btn-start" onclick="location.reload()" style="
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(221, 36, 118, 0.4);
+            transition: transform 0.3s ease;
+            direction: rtl;
+        ">
+            ليس هناك تحدٍ أكبر من تطوير ذاتك؛ أعد الكرة الآن 🚀 أو كُن النسخة الأفضل غداً 🔥✨
+        </button>
 
-<style>
-    .btn-start:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 20px rgba(221, 36, 118, 0.6);
-    }
-</style>
+        <style>
+            .btn-start:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(221, 36, 118, 0.6);
+            }
+        </style>
 
         <p style="margin-top: 20px;">✨ أ / <span class="normal-text">عبد العزيز الفيفي</span> - <span class="normal-text">ثانوية الأمير عبدالمجيد 🎓</span></p>
     </div>
 </div>
 
 <script>
-    // وظيفة عرض التاريخ الهجري والميلادي معاً بدون تكرار
     function updateDateTime() {
         const today = new Date();
         const hijriOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', calendar: 'islamic-umalqura', numberingSystem: 'arabic' };
@@ -97,10 +94,7 @@
         const hijriDate = new Intl.DateTimeFormat('ar-SA', hijriOptions).format(today);
         const gregDate = new Intl.DateTimeFormat('ar-SA', gregOptions).format(today);
         
-        const dateDisplay = document.getElementById('date-display');
-        if (dateDisplay) {
-            dateDisplay.innerText = `${hijriDate} | ${gregDate} م`;
-        }
+        document.getElementById('date-display').innerText = `${hijriDate} | ${gregDate} م`;
     }
 
     let timeLeft = 40;
@@ -110,38 +104,58 @@
     const TRANSITION_DELAY = 5500;
 
     const rawData = [
-        { type: "التناظر اللفظي", q: "جندي : سلاح", options: ["طبيب : سماعة", "مهندس : بناء", "ميكانيكي : زيت", "طباخ : مطعم"], correctText: "طبيب : سماعة" },
-        { type: "التناظر اللفظي", q: "أسود : ليل", options: ["أبيض : نهار", "أحمر : دم", "أخضر : عشب", "أصفر : شمس"], correctText: "أبيض : نهار" },
-        { type: "التناظر اللفظي", q: "بحر : سمك", options: ["سماء : طيور", "غابة : أشجار", "كتاب : معلومات", "مزرعة : فواكه"], correctText: "غابة : أشجار" },
-        { type: "إكمال الجمل", q: "إذا لم تستطع أن تكن ..... في السماء، فكن شجيرة في الـ .....", options: ["قمراً - ليل", "نجماً - وادي", "شمساً - كون", "طائراً - فضاء"], correctText: "نجماً - وادي" },
-        { type: "إكمال الجمل", q: "يعد الوعي ..... من أهم ركائز استقرار الميزانية الشخصية", options: ["الثقافي", "الصحي", "الاستهلاكي", "الرياضي"], correctText: "الاستهلاكي" },
-        { type: "إكمال الجمل", q: "المؤمن كـ ..... أينما وقع نفع", options: ["النحلة", "الغيث", "الشجرة", "الضوء"], correctText: "الغيث" },
-        { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["السنة", "الشهر", "اليوم", "الساعة"], correctText: "الساعة" },
-        { type: "الارتباط والاختلاف", q: "ما الكلمة المختلفة؟", options: ["الطائرة", "المنطاد", "الصاروخ", "السفينة"], correctText: "السفينة" },
-        { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["الرياض", "جدة", "مكة", "تبوك"], correctText: "الرياض" },
-        { type: "الخطأ في السياق", q: "صنعة في اليد أمان من الغنى", options: ["صنعة", "اليد", "أمان", "الغنى"], correctText: "الغنى" },
-        { type: "الخطأ في السياق", q: "العظماء يولدون في أحضان الوحدة، ويموتون في مهد الزحام", options: ["العظماء", "الوحدة", "يموتون", "الزحام"], correctText: "الزحام" },
-        { type: "الخطأ في السياق", q: "من غضب من لا شيء، رضي بكل شيء", options: ["غضب", "شيء", "رضي", "بكل"], correctText: "رضي" },
+        // --- 1. التناظر اللفظي ---
+        { type: "التناظر اللفظي", q: "شبكة : صيد", options: ["بندقية : قنص", "سكين : مطبخ", "قلم : حبر", "ملعقة : طعام"], correctText: "بندقية : قنص" },
+        { type: "التناظر اللفظي", q: "ليل : نهار", options: ["شمس : قمر", "صدق : كذب", "نوم : حلم", "سحاب : مطر"], correctText: "صدق : كذب" },
+        { type: "التناظر اللفظي", q: "نحاس : معدن", options: ["تفاح : فاكهة", "خشب : كرسي", "ماء : ثلج", "ذهب : خاتم"], correctText: "تفاح : فاكهة" },
+        { type: "التناظر اللفظي", q: "منارة : مسجد", options: ["جبل : قمة", "نخلة : رطب", "جناح : طائرة", "فصل : مدرسة"], correctText: "جناح : طائرة" },
+
+        // --- 2. إكمال الجمل ---
+        { type: "إكمال الجمل", q: "من غضب من لا شيء، رضي بـ .....", options: ["كل شيء", "لا شيء", "أقل شيء", "أكثر شيء"], correctText: "لا شيء" },
+        { type: "إكمال الجمل", q: "المؤمن كـ ..... حيثما وقع نفع", options: ["الغيث", "الجبل", "الشمس", "النجم"], correctText: "الغيث" },
+        { type: "إكمال الجمل", q: "الابتسامة هي الكلمة الوحيدة التي تفهمها كل .....", options: ["الشعوب", "اللغات", "العقول", "القلوب"], correctText: "الشعوب" },
+        { type: "إكمال الجمل", q: "من وعظ أخاه سراً فقد .....، ومن وعظه علانية فقد .....", options: ["نصحه - فضحه", "زانه - شانه", "أحبه - كرهه", "أرشده - أضله"], correctText: "زانه - شانه" },
+
+        // --- 3. المفردة الشاذة ---
+        { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["الرياض", "بغداد", "الخرطوم", "لندن"], correctText: "لندن" },
+        { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["المريخ", "زحل", "النيزك", "المشتري"], correctText: "النيزك" },
+        { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["الخريف", "الصيف", "الشتاء", "الشروق"], correctText: "الشروق" },
+        { type: "المفردة الشاذة", q: "ما الكلمة المختلفة؟", options: ["الظلم", "العدل", "القسط", "الإنصاف"], correctText: "الظلم" },
+
+        // --- 4. الخطأ في السياق ---
+        { type: "الخطأ في السياق", q: "الأدب وسيلة لتهذيب النفس، وجعلها أكثر حماقة أمام الآخرين", options: ["الأدب", "تهذيب", "حماقة", "الآخرين"], correctText: "حماقة" },
+        { type: "الخطأ في السياق", q: "الناجح هو من يبني مستقبله بالحجارة التي يرميه بها المادحون", options: ["الناجح", "مستقبله", "الحجارة", "المادحون"], correctText: "المادحون" },
+        { type: "الخطأ في السياق", q: "الصدق منجاة، والكذب مهلكة، والصمت وقار يقلل الهيبة", options: ["الصدق", "مهلكة", "وقار", "يقلل"], correctText: "يقلل" },
+        { type: "الخطأ في السياق", q: "الشخص المتفائل يرى ضوءاً لا يراه غيره، والمتشائم يطفئ النور حتى يراه", options: ["المتفائل", "ضوءاً", "المتشائم", "يطفئ"], correctText: "يطفئ" },
+
+        // --- 5. استيعاب المقروء ---
         { 
             type: "استيعاب المقروء", 
-            text: "تعتبر أشجار القرم (المانجروف) رئة للبحار، حيث تساهم في امتصاص كميات كبيرة من الكربون وتوفر مأوى للكثير من الكائنات البحرية.",
-            q: "يُفهم من النص أن أشجار القرم تلعب دوراً في:", 
-            options: ["زيادة ملوحة الماء", "تحسين جودة الهواء", "منع الصيد الجائر", "تبريد مياه البحار"], 
-            correctText: "تحسين جودة الهواء" 
+            text: "تعتبر أشجار القرم حائط صد طبيعي يحمي الشواطئ من التآكل، كما أنها مأوى للعديد من الكائنات البحرية.",
+            q: "الوظيفة الأساسية لأشجار القرم حسب النص هي:", 
+            options: ["إنتاج الثمار", "تزيين الشواطئ", "حماية السواحل", "تحلية المياه"], 
+            correctText: "حماية السواحل" 
         },
         { 
             type: "استيعاب المقروء", 
-            text: "يتكون الغلاف الجوي من عدة طبقات، أعلاها طبقة الإكسوسفير التي تتلاشى تدريجياً في الفضاء الخارجي، بينما نعيش نحن في طبقة التروپوسفير.",
-            q: "الطبقة الأقرب لسطح الأرض هي:", 
-            options: ["الإكسوسفير", "الستراتوسفير", "التروپوسفير", "الميزوسفير"], 
-            correctText: "التروپوسفير" 
+            text: "تعد الأرقام العربية (1، 2، 3) في الأصل أرقاماً هندية، بينما الأرقام المستخدمة في الغرب هي الأرقام العربية الأصيلة.",
+            q: "يشير النص إلى أن الأرقام التي نستخدمها حالياً (1، 2، 3) أصلها:", 
+            options: ["عربي", "هندي", "روماني", "لاتيني"], 
+            correctText: "هندي" 
         },
         { 
             type: "استيعاب المقروء", 
-            text: "يعتمد اقتصاد المستقبل بشكل كبير على البيانات (النفط الجديد)، حيث تساهم معالجتها في اتخاذ قرارات دقيقة تزيد الكفاءة والإنتاجية.",
-            q: "شبه الكاتب البيانات بالنفط الجديد للدلالة على:", 
-            options: ["صعوبة الحصول عليها", "قيمتها العالية", "تسببها في التلوث", "انتهائها السريع"], 
-            correctText: "قيمتها العالية" 
+            text: "الكسوف ظاهرة فلكية تحدث عندما يقع القمر بين الشمس والأرض، فيحجب ضوءها جزئياً أو كلياً.",
+            q: "يحدث الكسوف عندما يتوسط:", 
+            options: ["القمر", "الشمس", "الأرض", "الزهرة"], 
+            correctText: "القمر" 
+        },
+        { 
+            type: "استيعاب المقروء", 
+            text: "تعتبر الطاقة المتجددة مثل طاقة الرياح والشمس طاقة نظيفة لأنها لا تخلف انبعاثات ضارة للغلاف الجوي.",
+            q: "توصف الطاقة الشمسية بأنها نظيفة لأنها:", 
+            options: ["رخيصة الثمن", "متوفرة دائماً", "غير ملوثة", "سهلة التخزين"], 
+            correctText: "غير ملوثة" 
         }
     ];
 
@@ -156,7 +170,7 @@
     }
 
     function startQuiz() {
-        if (!document.getElementById('student-name').value.trim()) { alert("لطفاً، ادخل اسمك الثلاثي أولاً"); return; }
+        if (!document.getElementById('student-name').value) { alert("لطفاً، ادخل اسمك أولاً"); return; }
         quizData = shuffle([...rawData]);
         document.getElementById('login-section').classList.add('hidden');
         document.getElementById('quiz-section').classList.remove('hidden');
@@ -204,16 +218,15 @@
     function checkAnswer(index, isCorrect, correctText) {
         clearInterval(timerInterval);
         disableOptions();
-        const feedback = document.getElementById('feedback');
         if (isCorrect) {
             score++;
             document.getElementById(`opt-${index}`).classList.add('correct-flash');
-            feedback.innerHTML = "<span style='color:green'>إجابة صحيحة! أحسنت يا بطل 🌟</span>";
+            document.getElementById('feedback').innerHTML = "<span style='color:green'>إجابة صحيحة! أحسنت يا بطل 🌟</span>";
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         } else {
             document.getElementById(`opt-${index}`).classList.add('wrong-flash');
             highlightCorrect(correctText);
-            feedback.innerHTML = "<span style='color:red'>محاولة جيدة، واصل.. 💪 (الصواب بالأخضر)</span>";
+            document.getElementById('feedback').innerHTML = "<span style='color:red'>محاولة جيدة، واصل.. 💪 (الصواب بالأخضر)</span>";
         }
         setTimeout(nextQuestion, TRANSITION_DELAY);
     }
@@ -245,10 +258,8 @@
     function finishQuiz() {
         document.getElementById('quiz-section').classList.add('hidden');
         document.getElementById('result-section').classList.remove('hidden');
-        document.getElementById('final-score').innerText = `درجتك النهائية: ${score} من ${quizData.length}`;
+        document.getElementById('final-score').innerText = `درجتك هي: ${score} من ${quizData.length}`;
     }
 </script>
 </body>
-
 </html>
-
